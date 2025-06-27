@@ -1,0 +1,442 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Resume Maker with Multiple Templates</title>
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      margin: 20px;
+      display: flex;
+      gap: 30px;
+      background:peachpuff ;
+    }
+    .form-container {
+      width: 40%;
+    }
+    .form-group {
+      margin-bottom: 15px;
+    }
+    label {
+      display: block;
+      font-weight: bold;
+      margin-bottom: 5px;
+    }
+    input[type="text"],
+    input[type="email"],
+    select,
+    input[type="file"] {
+      width: 100%;
+      padding: 7px;
+      font-size: 1em;
+    }
+    .error {
+      color: red;
+      font-size: 0.85em;
+      margin-top: 2px;
+      min-height: 18px;
+    }
+    .mandatory {
+      color: red;
+    }
+    button {
+      padding: 10px 20px;
+      font-size: 1em;
+      cursor: pointer;
+    }
+    .template-selector {
+      margin-bottom: 20px;
+    }
+    .template-option {
+      display: inline-block;
+      width: 110px;
+      height: 60px;
+      border: 2px solid #ccc;
+      margin-right: 10px;
+      cursor: pointer;
+      text-align: center;
+      line-height: 60px;
+      user-select: none;
+      font-weight: bold;
+      color: #666;
+      border-radius: 5px;
+      transition: all 0.3s ease;
+    }
+    .template-option.selected {
+      border-color: #007bff;
+      background-color: #cce5ff;
+      color: #007bff;
+      font-weight: 900;
+    }
+    .preview-container {
+      width: 50%;
+      border-radius: 8px;
+      padding: 20px;
+      box-sizing: border-box;
+      background: #f9f9f9;
+      box-shadow: 0 0 8px rgba(0,0,0,0.1);
+      min-height: 320px;
+    }
+    .preview-section {
+      margin-bottom: 15px;
+    }
+    .preview-section img {
+      max-width: 120px;
+      max-height: 120px;
+      border-radius: 50%;
+      object-fit: cover;
+      margin-bottom: 15px;
+      display: block;
+    }
+    .preview-name {
+      font-size: 1.6em;
+      font-weight: bold;
+      margin-bottom: 5px;
+    }
+    .preview-email,
+    .preview-phone {
+      font-size: 1.1em;
+      margin-bottom: 5px;
+    }
+
+    /* TEMPLATE 1 - Clean, simple */
+    .template1 {
+      font-family: Arial, sans-serif;
+      color: #222;
+      background: white;
+      border: 2px solid #007bff;
+    }
+    .template1 .preview-name {
+      color: #007bff;
+      border-bottom: 2px solid #007bff;
+      padding-bottom: 5px;
+    }
+
+    /* TEMPLATE 2 - Elegant Serif */
+    .template2 {
+      font-family: 'Georgia', serif;
+      background: #f0f0f0;
+      color: #333;
+      border-left: 8px solid #8B0000;
+      padding-left: 20px;
+    }
+    .template2 .preview-name {
+      font-size: 1.8em;
+      font-weight: normal;
+      color: #8B0000;
+      font-style: italic;
+      margin-bottom: 10px;
+    }
+    .template2 .preview-email,
+    .template2 .preview-phone {
+      font-size: 1.1em;
+      color: #555;
+    }
+
+    /* TEMPLATE 3 - Modern Mono */
+    .template3 {
+      font-family: 'Courier New', monospace;
+      background: #e0f7f7;
+      color: #004d4d;
+      border-radius: 8px;
+      border: 1px dashed #004d4d;
+      padding: 20px;
+    }
+    .template3 .preview-name {
+      font-size: 1.7em;
+      font-weight: bold;
+      text-transform: uppercase;
+      letter-spacing: 1.5px;
+      border-bottom: 1px solid #004d4d;
+      padding-bottom: 7px;
+    }
+    .template3 .preview-email,
+    .template3 .preview-phone {
+      font-size: 1.1em;
+      font-weight: 600;
+    }
+
+    /* TEMPLATE 4 - Bold & Colorful */
+    .template4 {
+      font-family: 'Verdana', sans-serif;
+      background: linear-gradient(135deg, #ff9a9e 0%, #fad0c4 100%);
+      color: #4a0033;
+      padding: 25px;
+      border-radius: 15px;
+      box-shadow: 2px 2px 15px rgba(0,0,0,0.2);
+    }
+    .template4 .preview-name {
+      font-size: 2em;
+      font-weight: 900;
+      text-shadow: 1px 1px 2px #fff;
+    }
+    .template4 .preview-email,
+    .template4 .preview-phone {
+      font-size: 1.2em;
+      font-weight: 700;
+      margin-top: 8px;
+    }
+  </style>
+</head>
+<body>
+
+  <div class="form-container">
+    <h2>Fill Resume Details</h2>
+
+    <!-- Template Selector -->
+    <div class="template-selector">
+      <div class="template-option selected" data-template="template1">Template 1</div>
+      <div class="template-option" data-template="template2">Template 2</div>
+      <div class="template-option" data-template="template3">Template 3</div>
+      <div class="template-option" data-template="template4">Template 4</div>
+    </div>
+
+    <form id="resumeForm" validate>
+      <div class="form-group">
+        <label for="firstName">First Name <span class="mandatory">*</span></label>
+        <input type="text" id="firstName" name="firstName" placeholder="First Name" oninput="validateFirstNameLive()" pattern="[A-Za-z\s]*" />
+        <div class="error" id="firstNameError"></div>
+      </div>
+
+      <div class="form-group">
+        <label for="middleName">Middle Name</label>
+        <input type="text" id="middleName" name="middleName" placeholder="Middle Name (optional)" pattern="[A-Za-z\s]*" />
+        <div class="error" id="middleNameError"></div>
+      </div>
+
+      <div class="form-group">
+        <label for="lastName">Last Name <span class="mandatory">*</span></label>
+        <input type="text" id="lastName" name="lastName" placeholder="Last Name" pattern="[A-Za-z\s]*" />
+        <div class="error" id="lastNameError"></div>
+      </div>
+
+      <div class="form-group">
+        <label for="email">Email <span class="mandatory">*</span></label>
+        <input type="email" id="email" name="email" placeholder="you@example.com" />
+        <div class="error" id="emailError"></div>
+      </div>
+
+      <div class="form-group">
+        <label for="countryCode">Country Code <span class="mandatory">*</span></label>
+        <select id="countryCode" name="countryCode">
+          <option value="">-- Select Country Code --</option>
+          <option value="+1">+1 (USA)</option>
+          <option value="+44">+44 (UK)</option>
+          <option value="+91">+91 (India)</option>
+          <option value="+61">+61 (Australia)</option>
+          <option value="+81">+81 (Japan)</option>
+          <option value="+49">+49 (Germany)</option>
+        </select>
+        <div class="error" id="countryCodeError"></div>
+      </div>
+
+      <div class="form-group">
+        <label for="mobile">Mobile Number <span class="mandatory">*</span></label>
+        <input type="text" id="mobile" name="mobile" placeholder="10-digit mobile number" maxlength="10" />
+        <div class="error" id="mobileError"></div>
+      </div>
+
+      <div class="form-group">
+        <label for="profileImage">Profile Image (JPG, PNG only) <span class="mandatory">*</span></label>
+        <input type="file" id="profileImage" name="profileImage" accept=".jpg,.jpeg,.png" />
+        <div class="error" id="profileImageError"></div>
+      </div>
+
+      <button type="submit">Submit</button>
+    </form>
+  </div>
+
+  <div class="preview-container template1">
+    
+    <div class="preview-section">
+      <img id="profilePreview" src="" alt="Profile Image Preview" style="display:none;" />
+    </div>
+    <div class="preview-section preview-name" id="previewName">-</div>
+    <div class="preview-section preview-email" id="previewEmail">-</div>
+    <div class="preview-section preview-phone" id="previewPhone">-</div>
+  </div>
+
+<script>
+  // Elements
+  const resumeForm = document.getElementById("resumeForm");
+
+  const firstNameField = document.getElementById("firstName");
+  const middleNameField = document.getElementById("middleName");
+  const lastNameField = document.getElementById("lastName");
+  const emailField = document.getElementById("email");
+  const countryCodeField = document.getElementById("countryCode");
+  const mobileField = document.getElementById("mobile");
+  const profileImageField = document.getElementById("profileImage");
+
+  const firstNameError = document.getElementById("firstNameError");
+  const middleNameError = document.getElementById("middleNameError");
+  const lastNameError = document.getElementById("lastNameError");
+  const emailError = document.getElementById("emailError");
+  const countryCodeError = document.getElementById("countryCodeError");
+  const mobileError = document.getElementById("mobileError");
+  const profileImageError = document.getElementById("profileImageError");
+
+  const previewName = document.getElementById("previewName");
+  const previewEmail = document.getElementById("previewEmail");
+  const previewPhone = document.getElementById("previewPhone");
+  const previewImg = document.getElementById("profilePreview");
+
+  const templateOptions = document.querySelectorAll(".template-option");
+  const previewContainer = document.querySelector(".preview-container");
+  let selectedTemplate = "template1";
+
+  // Template switching
+  templateOptions.forEach((option) => {
+    option.addEventListener("click", () => {
+      templateOptions.forEach((opt) => opt.classList.remove("selected"));
+      option.classList.add("selected");
+      selectedTemplate = option.getAttribute("data-template");
+      updatePreviewTemplate(selectedTemplate);
+    });
+  });
+
+  function updatePreviewTemplate(templateName) {
+    previewContainer.className = "preview-container";
+    previewContainer.classList.add(templateName);
+  }
+
+  // Live preview update
+  function updatePreview() {
+    const fullName =
+      firstNameField.value.trim() +
+      (middleNameField.value.trim() ? " " + middleNameField.value.trim() : "") +
+      " " +
+      lastNameField.value.trim();
+
+    previewName.textContent = fullName || "-";
+    previewEmail.textContent = emailField.value.trim() || "-";
+    const phoneDisplay =
+      (countryCodeField.value || "") +
+      (mobileField.value.trim() || "-");
+    previewPhone.textContent = phoneDisplay || "-";
+  }
+
+  // Image preview handler
+  profileImageField.addEventListener("change", function () {
+    const file = this.files[0];
+    if (file) {
+      if (!["image/jpeg", "image/png"].includes(file.type)) {
+        profileImageError.textContent = "Invalid file type. Only JPG and PNG allowed.";
+        previewImg.style.display = "none";
+        previewImg.src = "";
+        return;
+      }
+      profileImageError.textContent = "";
+      const reader = new FileReader();
+      reader.onload = function (e) {
+        previewImg.src = e.target.result;
+        previewImg.style.display = "block";
+      };
+      reader.readAsDataURL(file);
+    } else {
+      previewImg.style.display = "none";
+      previewImg.src = "";
+    }
+  });
+
+  // Validation function
+  function validateForm() {
+    function validateFirstNameLive() {
+  const firstName = firstNameField.value.trim();
+  if (!firstName) {
+    firstNameError.textContent = "First name is required.";
+    firstNameField.style.borderColor = "red";
+  } else if (!/^[A-Z][a-zA-Z]{1,29}$/.test(firstName)) {
+    firstNameError.textContent = "Only letters allowed. Start with a capital letter (2–30 chars).";
+    firstNameField.style.borderColor = "red";
+  } else {
+    firstNameError.textContent = "";
+    firstNameField.style.borderColor = "green";
+  }
+    }
+
+    let isValid = true;
+
+    // Clear previous errors
+    firstNameError.textContent = "";
+    middleNameError.textContent = "";
+    lastNameError.textContent = "";
+    emailError.textContent = "";
+    countryCodeError.textContent = "";
+    mobileError.textContent = "";
+    profileImageError.textContent = "";
+
+    // First Name
+   const firstName = firstNameField.value.trim();
+if (!firstName) {
+  firstNameError.textContent = "First name is required.";
+  isValid = false;
+} else if (!/^[A-Z][a-zA-Z]{1,29}$/.test(firstName)) {
+  firstNameError.textContent = "Only letters allowed. Start with a capital letter (2–30 chars).";
+  isValid = false;
+} else {
+  firstNameError.textContent = "";
+}
+    // Last Name
+    if (!lastNameField.value.trim()) {
+      lastNameError.textContent = "Last name is required.";
+      isValid = false;
+    }
+    // Email
+    const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+    if (!emailField.value.trim()) {
+      emailError.textContent = "Email is required.";
+      isValid = false;
+    } else if (!emailRegex.test(emailField.value.trim())) {
+      emailError.textContent = "Invalid email format.";
+      isValid = false;
+    }
+    // Country code
+    if (!countryCodeField.value) {
+      countryCodeError.textContent = "Please select country code.";
+      isValid = false;
+    }
+    // Mobile number - exactly 10 digits and numeric
+    const mobileVal = mobileField.value.trim();
+    if (!mobileVal) {
+      mobileError.textContent = "Mobile number is required.";
+      isValid = false;
+    } else if (!/^\d{10}$/.test(mobileVal)) {
+      mobileError.textContent = "Mobile number must be exactly 10 digits.";
+      isValid = false;
+    }
+    // Profile image - required & valid type
+    const file = profileImageField.files[0];
+    if (!file) {
+      profileImageError.textContent = "Profile image is required.";
+      isValid = false;
+    } else if (!["image/jpeg", "image/png"].includes(file.type)) {
+      profileImageError.textContent = "Invalid file type. Only JPG and PNG allowed.";
+      isValid = false;
+    }
+
+    return isValid;
+  }
+
+  // Event listeners to update preview live for text inputs and selects
+  [firstNameField, middleNameField, lastNameField, emailField, countryCodeField, mobileField].forEach((field) => {
+    field.addEventListener("input", updatePreview);
+    field.addEventListener("change", updatePreview);
+  });
+
+  // Form submit handler
+  resumeForm.addEventListener("submit", function (e) {
+    e.preventDefault();
+    if (validateForm()) {
+      alert("Form submitted successfully!");
+      // Here you can also send data to server or process it further
+    }
+  });
+
+  // Initialize preview with empty data and template 1
+  updatePreview();
+  updatePreviewTemplate(selectedTemplate);
+</script>
+</body>
+</html>
